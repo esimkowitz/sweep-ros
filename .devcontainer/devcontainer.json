@@ -1,0 +1,25 @@
+{
+  "name": "humble desktop",
+  "dockerFile": "Dockerfile",
+  "runArgs": [
+    "--privileged",
+    "--network=host"
+  ],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/${localWorkspaceFolderBasename},type=bind",
+"workspaceFolder": "/${localWorkspaceFolderBasename}",
+"customizations": {
+	"vscode": {
+		"extensions": [
+			"ms-vscode.cmake-tools",
+			"ms-vscode.vscode-serial-monitor",
+			"ms-vscode.cpptools",
+			"ms-vscode.cpptools-extension-pack",
+			"formulahendry.code-runner",
+			"esbenp.prettier-vscode",
+			"christian-kohler.path-intellisense",
+			"VisualStudioExptTeam.vscodeintellicode",
+			"eamodio.gitlens"
+		]
+	}
+}
+}
