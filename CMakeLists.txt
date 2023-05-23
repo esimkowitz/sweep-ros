@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(sweep_ros)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall -Wextra -Wpedantic")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra -Wpedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Wextra -Wpedantic")
 
 find_package(ament_cmake REQUIRED)
 find_package(Sweep REQUIRED)
