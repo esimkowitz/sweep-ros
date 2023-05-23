@@ -1,44 +1,52 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(sweep_ros)
 
-find_package(catkin REQUIRED
-  COMPONENTS
-    pcl_conversions
-    pcl_msgs
-    rosconsole
-    roscpp
-    sensor_msgs
-)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall -Wextra -Wpedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra -Wpedantic")
 
-find_package(PCL REQUIRED)
+find_package(ament_cmake REQUIRED)
 find_package(Sweep REQUIRED)
 find_package(Threads REQUIRED)
+find_package(PCL REQUIRED)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall -Wextra")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra")
-
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-  ${PCL_INCLUDE_DIRS}
-)
-
-## Add link directories
-link_directories(
-  ${PCL_LIBRARY_DIRS}
-)
-
-catkin_package(
-  CATKIN_DEPENDS sensor_msgs
-)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(pcl_conversions REQUIRED)
+find_package(pcl_msgs REQUIRED)
 
 add_executable(sweep_node src/node.cpp)
+target_compile_options(sweep_node PRIVATE -Wall)
+ament_target_dependencies(sweep_node rclcpp sensor_msgs pcl_conversions pcl_msgs)
+target_link_libraries(sweep_node ${PCL_LIBRARIES} ${LIBSWEEP_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
-target_link_libraries(sweep_node ${catkin_LIBRARIES} ${LIBSWEEP_LIBRARY})
+target_include_directories(sweep_node SYSTEM PRIVATE ${LIBSWEEP_INCLUDE_DIR} ${ament_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
 
-target_include_directories(sweep_node SYSTEM PRIVATE ${LIBSWEEP_INCLUDE_DIR})
-
-install(TARGETS sweep_node
-        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+install(
+  DIRECTORY include/
+  DESTINATION include
 )
+
+install(
+  TARGETS sweep_node
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
+
+# Tell downstream packages where to find our headers
+ament_export_include_directories(include)
+# Tell downstream packages our libraries to link against
+# ament_export_libraries(my_library)
+# Help downstream packages to find transitive dependencies
+ament_export_dependencies(
+  rclcpp
+  sensor_msgs
+  pcl_conversions
+  pcl_msgs
+  Sweep
+  Threads
+  PCL
+)
+
+ament_package()
