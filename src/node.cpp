@@ -22,19 +22,20 @@
  * SOFTWARE.
  */
 
-#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/rclcpp.hpp"\
+#include "rclcpp/time.hpp"
 #include <pcl/point_types.h>
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include <pcl/point_cloud.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <sweep/sweep.hpp>
 
-void publish_scan(ros::Publisher *pub,
+void publish_scan(rclcpp::publisher::Publisher *pub,
                   const sweep::scan *scan, std::string frame_id)
 {
     pcl::PointCloud <pcl::PointXYZ> cloud;
-    sensor_msgs::PointCloud2 cloud_msg;
-    ros::Time ros_now = ros::Time::now();
+    sensor_msgs::msg::PointCloud2 cloud_msg;
+    rclcpp::Time ros_now = rclcpp::Time::now();
 
     float angle;
     int32_t range;
@@ -73,9 +74,8 @@ void publish_scan(ros::Publisher *pub,
 int main(int argc, char *argv[]) try
 {
     //Initialize Node and handles
-    ros::init(argc, argv, "sweep_node");
-    ros::NodeHandle nh;
-    ros::NodeHandle nh_private("~");
+    rclcpp::init(argc, argv);
+    auto node = rclcpp::Node::make_shared("sweep_node");
 
     //Get Serial Parameters
     std::string serial_port;
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) try
     nh_private.param<std::string>("frame_id", frame_id, "laser_frame");
 
     //Setup Publisher
-    ros::Publisher scan_pub = nh.advertise<sensor_msgs::PointCloud2>("pc2", 1000);
+    rclcpp::Publisher scan_pub = nh.advertise<sensor_msgs::msg::PointCloud2>("pc2", 1000);
 
     //Create Sweep Driver Object
     sweep::sweep device{serial_port.c_str()};
@@ -111,14 +111,14 @@ int main(int argc, char *argv[]) try
     //Start Scan
     device.start_scanning();
 
-    while (ros::ok())
+    while (rclcpp::ok())
     {
         //Grab Full Scan
         const sweep::scan scan = device.get_scan();
 
         publish_scan(&scan_pub, &scan, frame_id);
 
-        ros::spinOnce();
+        rclcpp::spinOnce();
     }
 
     //Stop Scanning & Destroy Driver
