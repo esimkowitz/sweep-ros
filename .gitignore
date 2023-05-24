@@ -4,4 +4,4 @@ install
 log
 
 # Python build ignore
-**/__pycache__
+**/*/__pycache__
