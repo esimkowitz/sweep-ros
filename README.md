@@ -13,3 +13,7 @@ This node is currently publishing a `pointcloud2` msg. This is because the Sweep
 Currently, sweep-ros is only compatible with sweep `firmware v1.1` or greater.
 
 You can check the firmware version installed on your sweep device by using a serial terminal (see [manual](https://s3.amazonaws.com/scanse/Sweep_user_manual.pdf)) or more easily using the sweep visualizer (see [instructions](https://support.scanse.io/hc/en-us/articles/224557908-Upgrading-Firmware)).
+
+## LICENSE
+
+See [LICENSE.md](./LICENSE.md) for details.
