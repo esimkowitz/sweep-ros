@@ -1,27 +1,3 @@
-
-/*The MIT License (MIT)
- *
- * Copyright (c) 2017, Scanse, LLC
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
 #include "rclcpp/clock.hpp"
@@ -31,12 +7,13 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include "sweep/sweep.hpp"
 
+#include "../include/sweep_ros.hpp"
+
 using namespace std;
 
-class SweepNode : public rclcpp::Node
+namespace sweep_ros
 {
-public:
-    SweepNode() : Node("sweep_node")
+    SweepRos::SweepRos() : Node("sweep")
     {
         this->declare_parameter("serial_port", "/dev/ttyUSB0");
         this->declare_parameter("serial_baudrate", 115200);
@@ -67,17 +44,10 @@ public:
             throw e;
         }
 
-        timer_ = this->create_wall_timer(std::chrono::milliseconds(this->get_parameter("sample_rate").as_int()), std::bind(&SweepNode::timer_callback, this));
+        timer_ = this->create_wall_timer(std::chrono::milliseconds(this->get_parameter("sample_rate").as_int()), std::bind(&SweepRos::timer_callback, this));
     }
 
-    sweep::sweep device = nullptr;
-
-private:
-    rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr publisher_;
-    rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Clock ros_clock_;
-
-    void timer_callback()
+    void SweepRos::timer_callback()
     {
         try
         {
@@ -90,7 +60,7 @@ private:
         }
     }
 
-    void publish_scan(const sweep::scan *scan, std::string frame_id)
+    void SweepRos::publish_scan(const sweep::scan *scan, std::string frame_id)
     {
         pcl::PointCloud<pcl::PointXYZ> cloud;
         sensor_msgs::msg::PointCloud2 cloud_msg;
@@ -129,16 +99,3 @@ private:
         publisher_->publish(cloud_msg);
     }
 };
-
-int main(int argc, char *argv[])
-{
-    // Initialize Node and handles
-    rclcpp::init(argc, argv);
-    std::shared_ptr<SweepNode> node = std::make_shared<SweepNode>();
-    rclcpp::spin(node);
-
-    // Stop Scanning & Destroy Driver
-    node->device.stop_scanning();
-    rclcpp::shutdown();
-    return 0;
-}
