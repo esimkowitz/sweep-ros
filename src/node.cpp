@@ -29,13 +29,14 @@
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include <pcl/point_cloud.h>
 #include <pcl_conversions/pcl_conversions.h>
-#include <sweep/sweep.hpp>
+#include "sweep/sweep.hpp"
+
+using namespace std;
 
 class SweepNode : public rclcpp::Node
 {
 public:
-    SweepNode()
-    :Node("sweep_node")
+    SweepNode() : Node("sweep_node")
     {
         this->declare_parameter("serial_port", "/dev/ttyUSB0");
         this->declare_parameter("serial_baudrate", 115200);
@@ -45,22 +46,23 @@ public:
         publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("sweep_pc2", 1000);
         ros_clock_ = rclcpp::Clock(RCL_ROS_TIME);
 
-        try {
-            device = sweep::sweep(this->get_parameter("serial_port").as_string().c_str(), this->get_parameter("serial_baudrate").as_int());
+        try
+        {
+            device = sweep::sweep(this->get_parameter("serial_port").as_string().c_str(), (int32_t)(this->get_parameter("serial_baudrate").as_int()));
 
-            //Send Rotation Speed
-            device.set_motor_speed(this->get_parameter("rotation_speed").as_int());
+            // Send Rotation Speed
+            device.set_motor_speed((int32_t)(this->get_parameter("rotation_speed").as_int()));
 
-            //Send Sample Rate
-            device.set_sample_rate(this->get_parameter("sample_rate").as_int());
+            // Send Sample Rate
+            device.set_sample_rate((int32_t)(this->get_parameter("sample_rate").as_int()));
 
+            RCLCPP_INFO(this->get_logger(), "expected rotation frequency: %d (Hz)", (int32_t)(this->get_parameter("rotation_speed").as_int()));
 
-            RCLCPP_INFO(this->get_logger(), "expected rotation frequency: %ld (Hz)", this->get_parameter("rotation_speed").as_int());
-
-            //Start Scan
+            // Start Scan
             device.start_scanning();
         }
-        catch (const sweep::device_error& e) {
+        catch (const sweep::device_error &e)
+        {
             RCLCPP_ERROR(this->get_logger(), "Error: %s", e.what());
             throw e;
         }
@@ -68,26 +70,29 @@ public:
         timer_ = this->create_wall_timer(std::chrono::milliseconds(this->get_parameter("sample_rate").as_int()), std::bind(&SweepNode::timer_callback, this));
     }
 
-    sweep::sweep device;
+    sweep::sweep device = nullptr;
+
 private:
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr publisher_;
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Clock ros_clock_;
 
-    void timer_callback() 
+    void timer_callback()
     {
-        try {
+        try
+        {
             const sweep::scan scan = device.get_scan();
             publish_scan(&scan, this->get_parameter("frame_id").as_string());
         }
-        catch (const sweep::device_error& e) {
+        catch (const sweep::device_error &e)
+        {
             RCLCPP_ERROR(this->get_logger(), "Error: %s", e.what());
         }
     }
-    
+
     void publish_scan(const sweep::scan *scan, std::string frame_id)
     {
-        pcl::PointCloud <pcl::PointXYZ> cloud;
+        pcl::PointCloud<pcl::PointXYZ> cloud;
         sensor_msgs::msg::PointCloud2 cloud_msg;
         rclcpp::Time ros_now = ros_clock_.now();
 
@@ -101,12 +106,12 @@ private:
         cloud.width = scan->samples.size();
         cloud.points.resize(cloud.width * cloud.height);
 
-        for (const sweep::sample& sample : scan->samples)
+        for (const sweep::sample &sample : scan->samples)
         {
             range = sample.distance;
-            angle = ((float)sample.angle / 1000); //millidegrees to degrees
+            angle = ((float)sample.angle / 1000); // millidegrees to degrees
 
-            //Polar to Cartesian Conversion
+            // Polar to Cartesian Conversion
             x = (range * cos(DEG2RAD(angle))) / 100;
             y = (range * sin(DEG2RAD(angle))) / 100;
 
@@ -115,7 +120,7 @@ private:
             i++;
         }
 
-        //Convert pcl PC to ROS PC2
+        // Convert pcl PC to ROS PC2
         pcl::toROSMsg(cloud, cloud_msg);
         cloud_msg.header.frame_id = frame_id;
         cloud_msg.header.stamp = ros_now;
@@ -123,18 +128,17 @@ private:
         RCLCPP_DEBUG(this->get_logger(), "Publishing a full scan");
         publisher_->publish(cloud_msg);
     }
-    
 };
 
 int main(int argc, char *argv[])
 {
-    //Initialize Node and handles
+    // Initialize Node and handles
     rclcpp::init(argc, argv);
-    auto node = rclcpp::Node::make_shared<SweepNode>();
+    std::shared_ptr<SweepNode> node = std::make_shared<SweepNode>();
     rclcpp::spin(node);
 
-    //Stop Scanning & Destroy Driver
-    node.device.stop_scanning();
+    // Stop Scanning & Destroy Driver
+    node->device.stop_scanning();
     rclcpp::shutdown();
     return 0;
 }
