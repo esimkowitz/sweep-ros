@@ -1,27 +1,9 @@
 # sweep-ros
 
+Port of the [sweep-ros](https://github.com/scanse/sweep-ros) node to ROS2.
+
 ## Dependencies
-The Sweep ROS Driver and Node requires that the libsweep library from the [sweep-sdk](https://github.com/scanse/sweep-sdk) be installed on the computer.
-
-See the [libsweep README](https://github.com/scanse/sweep-sdk/tree/master/libsweep) for full installation instructions, or follow the brief guide below:
-
-```bash
-# clone the sweep-sdk repository
-git clone https://github.com/scanse/sweep-sdk
-
-# enter the libsweep directory
-cd sweep-sdk/libsweep
-
-# create and enter a build directory
-mkdir -p build
-cd build
-
-# build and install the libsweep library
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build .
-sudo cmake --build . --target install
-sudo ldconfig
-```
+The Sweep ROS Driver and Node requires that the libsweep library from the [sweep-sdk](https://github.com/scanse/sweep-sdk) be installed on the computer. I've included it as a submodule in this repository for ease of use.
 
 ## Scanse Sweep ROS Driver and Node
 
