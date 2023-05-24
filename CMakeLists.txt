@@ -55,6 +55,7 @@ target_link_libraries(sweep_node
 ament_target_dependencies(sweep_node
   rclcpp
 )
+# end sweep_node executable
 
 install(TARGETS
   sweep_ros
@@ -74,9 +75,20 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}
 )
 
+# Install launch files.
+install(DIRECTORY
+  config
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install (DIRECTORY
+  rviz
+  DESTINATION share/${PROJECT_NAME})
+
 install(DIRECTORY
   include/
-  DESTINATION include)
+  DESTINATION include
+)
 
 # Tell downstream packages where to find our headers
 ament_export_include_directories(include)
