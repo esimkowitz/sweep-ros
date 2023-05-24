@@ -1,3 +1,8 @@
+/*
+Copyright (c) 2023, Evan Simkowitz
+See LICENSE.md in the root directory of this repo for license information.
+*/
+
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
 #include "rclcpp/clock.hpp"
