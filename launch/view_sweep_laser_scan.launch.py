@@ -11,15 +11,16 @@ from launch_ros.actions import Node
 def generate_launch_description():
     sweep2scan_ld = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
-            get_package_share_directory('sweep_node'), 'launch'),
+            get_package_share_directory('sweep_ros'), 'launch'),
             '/sweep2scan.launch.py'])
         )
-    ld = LaunchDescription([sweep2scan_ld])
     rviz_node = Node(
         package='rviz2',
         name='rviz2',
         executable='rviz2',
-        arguments=['-d', os.path.join(get_package_share_directory('sweep_node'), 'rviz', 'sweep_laser_scan.rviz')],
+        arguments=['-d', os.path.join(get_package_share_directory('sweep_ros'), 'rviz', 'sweep_laser_scan.rviz')],
     )
-    ld.add_action(rviz_node)
-    return ld
+    return LaunchDescription([
+        sweep2scan_ld,
+        rviz_node
+    ])
