@@ -14,7 +14,7 @@ popd () {
 # Get the root directory for the git repo
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-pushd $SCRIPT_DIR/sweep-sdk/libsweep
+pushd $SCRIPT_DIR/../sweep-sdk/libsweep
 
 # create and enter a build directory
 mkdir -p build
