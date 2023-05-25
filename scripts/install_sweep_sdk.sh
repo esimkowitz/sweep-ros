@@ -12,9 +12,9 @@ popd () {
 
 
 # Get the root directory for the git repo
-reporoot=$(git rev-parse --show-toplevel)
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-pushd $reporoot/sweep-sdk/libsweep
+pushd $SCRIPT_DIR/sweep-sdk/libsweep
 
 # create and enter a build directory
 mkdir -p build
