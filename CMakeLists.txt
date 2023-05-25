@@ -3,7 +3,7 @@ project(sweep_ros)
 
 find_package(ament_cmake REQUIRED)
 
-find_package(Sweep REQUIRED)
+find_package(Sweep)
 find_package(Threads REQUIRED)
 find_package(PCL REQUIRED)
 
