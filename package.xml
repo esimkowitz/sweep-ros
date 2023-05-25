@@ -4,7 +4,8 @@
     <name>sweep_ros</name>
     <version>0.3.0</version>
     <description>The sweep_ros package</description>
-
+    <author email="support@scanse.io">Kent Williams</author>
+    <author email="esimkowitz@wustl.edu">Evan Simkowitz</author>
     <maintainer email="esimkowitz@wustl.edu">Evan Simkowitz</maintainer>
 
     <license>MIT</license>

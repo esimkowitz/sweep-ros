@@ -23,6 +23,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wconversion -Wno-sign-conversion -Wpedantic -Wnon-virtual-dtor -Woverloaded-virtual)
 endif()
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/sweep-sdk/libsweep)
+
 # start sweep_ros library
 add_library(sweep_ros SHARED
   src/sweep_ros.cpp
