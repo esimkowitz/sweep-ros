@@ -3,7 +3,8 @@ project(sweep_ros)
 
 find_package(ament_cmake REQUIRED)
 
-find_package(Sweep)
+add_subdirectory(${PROJECT_SOURCE_DIR}/sweep-sdk/libsweep)
+
 find_package(Threads REQUIRED)
 find_package(PCL REQUIRED)
 
@@ -23,11 +24,13 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wconversion -Wno-sign-conversion -Wpedantic -Wnon-virtual-dtor -Woverloaded-virtual)
 endif()
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/sweep-sdk/libsweep)
 
 # start sweep_ros library
 add_library(sweep_ros SHARED
   src/sweep_ros.cpp
+)
+target_link_libraries(sweep_ros
+  sweep
 )
 target_compile_options(sweep_ros
   PRIVATE -Wall
@@ -40,7 +43,9 @@ ament_target_dependencies(sweep_ros
   pcl_msgs
 )
 
-target_link_libraries(sweep_ros ${PCL_LIBRARIES} ${LIBSWEEP_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+# include("${sweep_CMAKE_DIR}/SweepConfig.cmake")
+
+target_link_libraries(sweep_ros ${LIBSWEEP_LIBRARIES} ${PCL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(sweep_ros SYSTEM PRIVATE ${LIBSWEEP_INCLUDE_DIR} ${ament_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
 # end sweep_ros library
 
@@ -102,7 +107,6 @@ ament_export_dependencies(
   sensor_msgs
   pcl_conversions
   pcl_msgs
-  Sweep
   Threads
   PCL
 )
